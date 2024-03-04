@@ -1,0 +1,45 @@
+server:
+    port: 8081
+
+input:
+  dir: /tmp/camel
+  file: data1.txt
+
+output:
+  dir: /tmp/camel/out
+
+gwh:  
+  core:
+    db:
+      datasource:
+        className: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://192.168.6.2:3306/gwh
+        userName: root
+        password: Adriana77!
+        minpoolsize: 0
+        maxpoolsize: 50
+        increment: 2
+        maxidleTime: 300
+        retryDelay: 600000                
+        jpa-dialect: org.hibernate.dialect.MySQLDialect        
+        jpa-ddl-auto: validate          
+        jpa-physical-naming-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+
+debug: false
+
+logging:
+  level:
+    root: INFO
+    org:
+      apache:
+        camel: INFO
+      springframework:
+        transaction: 
+          interceptor: TRACE
+        web: DEBUG
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+            BasicBinder: TRACE
