@@ -16,8 +16,6 @@ public class GwhJpaCoreProperties {
     String url;
 
     String userName;
-
-    String password;
    
     Integer minPoolSize = 0;
 

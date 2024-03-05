@@ -24,6 +24,9 @@ public class MyConfig {
 
     @Value("${input.file}")
     private String consumerFile;
+
+    @Value("${MYSQL_PASSWORD}")
+    private String password;
      
 
     @Bean ("defaultTableResumeStrategyConfigurationBuilder")
@@ -51,8 +54,8 @@ public class MyConfig {
         ComboPooledDataSource dataSource = new ComboPooledDataSource();        
         dataSource.setDriverClass(gwhJpaCoreProperties.getClassName());        
         dataSource.setJdbcUrl(gwhJpaCoreProperties.getUrl());
-        dataSource.setUser(gwhJpaCoreProperties.getUserName());
-        dataSource.setPassword(gwhJpaCoreProperties.getPassword());
+        dataSource.setUser(gwhJpaCoreProperties.getUserName());        
+        dataSource.setPassword(password);
         dataSource.setMinPoolSize(gwhJpaCoreProperties.getMinPoolSize());
         dataSource.setMaxPoolSize(gwhJpaCoreProperties.getMaxPoolSize());
         dataSource.setAcquireIncrement(gwhJpaCoreProperties.getIncrement());

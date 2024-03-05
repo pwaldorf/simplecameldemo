@@ -2,6 +2,7 @@ package com.pw.resumecameldemo.route;
 
 import java.io.File;
 import org.apache.camel.Exchange;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.file.FileConstants;
 import org.apache.camel.resume.Resumable;
@@ -22,7 +23,7 @@ public class MyTestRoutes extends RouteBuilder {
     @Autowired
     @Qualifier("defaultTableResumeStrategyConfigurationBuilder")
     private TableResumeStrategyConfigurationBuilder tableResumeStrategyConfigurationBuilder;
-    
+        
     private long lastOffset;
     private long lineCount = 0;
 
@@ -69,9 +70,8 @@ public class MyTestRoutes extends RouteBuilder {
                     .configuration(tableResumeStrategyConfigurationBuilder)
                     .intermittent(false)
                     .process(this::process)
-                    .end()
                 .to("file:{{output.dir}}?fileName=summary.txt&fileExist=Append&appendChars=\n");
-                                
+                
     }    
     
 }
