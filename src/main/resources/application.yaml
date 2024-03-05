@@ -15,7 +15,7 @@ gwh:
         className: com.mysql.cj.jdbc.Driver
         url: jdbc:mysql://192.168.6.2:3306/gwh
         userName: root
-        password: Adriana77!
+        password: XXXXXXXX!
         minpoolsize: 0
         maxpoolsize: 50
         increment: 2
