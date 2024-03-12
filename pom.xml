@@ -62,6 +62,13 @@
 			<artifactId>caffeine</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-artemis</artifactId>
+		</dependency>
+
+		
+
 		<!-- camel dependencies -->
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
@@ -78,7 +85,40 @@
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
 			<artifactId>camel-caffeine-starter</artifactId>			
+	  	</dependency>
+		  <dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-ftp-starter</artifactId>			
 	  	</dependency>		  
+		  <dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-jms-starter</artifactId>			
+	  	</dependency>		
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-log-starter</artifactId>			
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-quartz-starter</artifactId>			
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-cron-starter</artifactId>			
+		</dependency>
+
+		<!-- activemq dependencies-->
+		<dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-jms-client</artifactId>
+			<version>2.31.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
+        </dependency>
 
 		<!-- mysql dependencies-->		
 		<dependency>

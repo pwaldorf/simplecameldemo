@@ -1,14 +1,21 @@
 server:
     port: 8081
 
+camel:
+  springboot:
+    tracing: false
+    tracing-standby: false
+
 input:
   dir: /tmp/camel
-  file: data1.txt
+  file: test.txt
 
 output:
   dir: /tmp/camel/out
 
-gwh:  
+gwh:
+  group:
+    count: 3
   core:
     db:
       datasource:
@@ -24,6 +31,24 @@ gwh:
         jpa-ddl-auto: validate          
         jpa-physical-naming-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
 
+  activemqtest:
+    component:
+      broker-url: tcp://192.168.6.1:61616
+      username: artemis
+      password: artemis
+      session-cache-size: 10
+
+  framework:
+    routes:
+      load:
+        params:
+          enabled: true
+    component:
+      activemqtest:
+        enabled: true
+      kafka:
+        enabled: true
+
 debug: false
 
 logging:
@@ -32,13 +57,17 @@ logging:
     org:
       apache:
         camel: INFO
+          #component:
+          #  ftp: TRACE      
+        commons:
+          net: TRACE
       springframework:
         transaction: 
           interceptor: TRACE
-        web: DEBUG
-      hibernate:
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql:
-            BasicBinder: TRACE
+        #web: DEBUG
+      #hibernate:
+      #  SQL: DEBUG
+      #  type:
+      #    descriptor:
+      #      sql:
+      #      BasicBinder: TRACE
