@@ -2,8 +2,6 @@ package com.pw.resumecameldemo.route;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.caffeine.processor.idempotent.CaffeineIdempotentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +19,7 @@ public class GwhFileRouteTemplates extends RouteBuilder {
             .templateParameter("filecomponent", "ftp")
             .templateParameter("directid", "splitmqsend")        
             .templateParameter("url", "pwaldorf@192.168.6.2:21")
-            .templateParameter("password", "Adriana77!")
+            .templateParameter("password", "XXXXXXXX")
             .templateParameter("filename", "test.txt")
             .templateParameter("delete", "true")
             .templateParameter("directid", "splitmqsend")  

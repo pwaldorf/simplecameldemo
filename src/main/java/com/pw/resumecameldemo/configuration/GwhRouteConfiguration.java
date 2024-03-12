@@ -2,7 +2,6 @@ package com.pw.resumecameldemo.configuration;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteConfigurationBuilder;
-import org.apache.camel.component.caffeine.processor.idempotent.CaffeineIdempotentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

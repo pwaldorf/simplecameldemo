@@ -1,6 +1,5 @@
 package com.pw.resumecameldemo.route;
 
-import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
