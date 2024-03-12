@@ -3,7 +3,6 @@ package com.pw.resumecameldemo.route;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.caffeine.processor.idempotent.CaffeineIdempotentRepository;
-import org.apache.camel.routepolicy.quartz.CronScheduledRoutePolicy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,17 +10,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class GwhFileRouteTemplates extends RouteBuilder {
 
-    @Autowired
-    CaffeineIdempotentRepository fileIdempotentRepository;
-    
-    @Autowired
-    CaffeineIdempotentRepository recordIdempotentRepository;
-
-    @Autowired
-    CronScheduledRoutePolicy cronScheduledRoutePolicy;
-
-    @Autowired
-    FileResumeRoutePolicy fileResumeRoutePolicy;
 
     @Value("${gwh.group.count:50}")
     private int groupCount;
@@ -38,28 +26,30 @@ public class GwhFileRouteTemplates extends RouteBuilder {
             .templateParameter("delete", "true")
             .templateParameter("directid", "splitmqsend")  
             .templateParameter("splittoken", "\n")
-            .templateParameter("schedule", "0/20 * * * * ?")        
+            .templateParameter("schedule", "0/20 * * * * ?")             
+            .templateParameter("routepolicy1", "cronScheduledRoutePolicy")
+            .templateParameter("routepolicy2", "fileResumeRoutePolicy")            
+            .templateParameter("idempotentrepository", "fileIdempotentRepository")
             .from(new StringBuilder("{{filecomponent}}://{{url}}")
                             .append("?password={{password}}")
                             .append("&fileName={{filename}}")
                             .append("&delete={{delete}}")
                             .append("&scheduler=quartz")
                             .append("&scheduler.cron={{schedule}}")
-                            .toString())                      
-                    .routePolicy(cronScheduledRoutePolicy, fileResumeRoutePolicy).noAutoStartup()
-                    .onCompletion().onCompleteOnly().bean(recordIdempotentRepository, "clear").end()                                    
-                    .routeId("{{routeid}}")
-                    .idempotentConsumer(simple("${headers.CamelFileName}"), fileIdempotentRepository).skipDuplicate(false)                
-                    .choice()                    
+                            .toString())                                          
+                    .routePolicyRef("{{routepolicy1}},{{routepolicy2}}").noAutoStartup()                    
+                    .idempotentConsumer(simple("${headers.CamelFileHost}-${headers.CamelFileName}-${headers.CamelFileLength}"))
+                        .idempotentRepository("{{idempotentrepository}}")
+                        .skipDuplicate(false)
+                    .choice()
                     .when(simple("${exchangeProperty.CamelDuplicateMessage} == 'true'"))
-                        .log(LoggingLevel.INFO, "Duplicate File: ${headers.CamelFileName}")
-                    .otherwise()            
-                            .convertBodyTo(String.class)                        
-                            .split().tokenize("{{splittoken}}", groupCount)
-                                .streaming()
-                                .stopOnException()                                        
-                            .to("direct:{{directid}}")
-                    .end();
+                        .log(LoggingLevel.INFO, "Skipping Duplicate File: ${headers.CamelFileHost}-${headers.CamelFileName}-${headers.CamelFileLength}")
+                    .otherwise()
+                        .convertBodyTo(String.class)
+                        .split().tokenize("{{splittoken}}", groupCount)
+                            .streaming()
+                            .stopOnException()
+                        .to("direct:{{directid}}");                    
 
     }
     

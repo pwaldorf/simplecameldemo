@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.pw.resumecameldemo.model.ResumeRecord;
@@ -18,9 +19,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Route;
+import org.apache.camel.component.caffeine.processor.idempotent.CaffeineIdempotentRepository;
 
 
 @Slf4j
+@Component("fileResumeRoutePolicy")
 public class FileResumeRoutePolicy extends RoutePolicySupport {
 
     @Autowired
@@ -30,6 +33,10 @@ public class FileResumeRoutePolicy extends RoutePolicySupport {
     @Autowired
     @Qualifier("resumeCache")
     Cache<String, ResumeRecord> resumeCache;
+
+    @Autowired
+    @Qualifier("recordIdempotentRepository")
+    CaffeineIdempotentRepository recordIdempotentRepository;
 
     private final ReentrantLock writeLock = new ReentrantLock();
 
@@ -95,6 +102,7 @@ public class FileResumeRoutePolicy extends RoutePolicySupport {
                                                  0L, 0L, 0L, fileName);
 
                 resumeCache.invalidateAll();
+                //recordIdempotentRepository.clear();
                 
             } finally {
                 writeLock.unlock();

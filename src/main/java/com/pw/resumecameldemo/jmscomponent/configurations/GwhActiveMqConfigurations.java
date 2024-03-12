@@ -10,7 +10,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.connection.JmsTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import jakarta.jms.ConnectionFactory;
+import jakarta.jms.DeliveryMode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jms.core.JmsTemplate;
 
 @Slf4j
 @Configuration
@@ -19,6 +21,15 @@ public class GwhActiveMqConfigurations {
 
     @Autowired
     GwhActiveMqProperties gwhActiveMqProperties;
+
+    @Bean("newFileJmsTemplate")
+    public JmsTemplate newFileJmsTemplate() {
+        JmsTemplate jmsTemplate = new JmsTemplate(activeMqTestConnectionFactory());
+        //jmsTemplate.setSessionTransacted(true);
+        //jmsTemplate.setDeliveryPersistent(false);
+        jmsTemplate.setDeliveryMode(DeliveryMode.PERSISTENT);
+        return jmsTemplate;
+    }
 
     @Bean("activeMqTestConnectionFactory")
 	public ConnectionFactory activeMqTestConnectionFactory() {		

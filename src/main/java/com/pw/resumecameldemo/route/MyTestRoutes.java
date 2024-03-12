@@ -31,10 +31,13 @@ public class MyTestRoutes extends RouteBuilder {
                 .to("file:{{output.dir}}?fileName=summary2.txt&fileExist=Append&appendChars=\n");
 
         templatedRoute("fileRouteTemplate")
+            .routeId("largeFileRoute")
             .parameter("filename", "test.txt");
 
         templatedRoute("splitmqsend")
-        .parameter("queue", "mailbox");
+            .routeId("splitmqsend")
+            .parameter("mqcomponent", "gwhMqSender")
+            .parameter("mqcomponentmethod", "send");
 
     }    
     

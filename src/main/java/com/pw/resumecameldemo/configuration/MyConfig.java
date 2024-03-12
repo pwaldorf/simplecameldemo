@@ -1,13 +1,10 @@
 package com.pw.resumecameldemo.configuration;
 
 import java.beans.PropertyVetoException;
-import java.io.File;
 
 import javax.sql.DataSource;
 
 import org.apache.camel.component.caffeine.processor.idempotent.CaffeineIdempotentRepository;
-import org.apache.camel.component.caffeine.resume.CaffeineCache;
-import org.apache.camel.resume.cache.ResumeCache;
 import org.apache.camel.routepolicy.quartz.CronScheduledRoutePolicy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +16,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.pw.resumecameldemo.model.ResumeRecord;
-import com.pw.resumecameldemo.route.FileResumeRoutePolicy;
-import com.pw.resumecameldemo.route.FileResumeUpdateRoutePolicy;
+
 
 @Configuration
 public class MyConfig {
@@ -37,21 +33,11 @@ public class MyConfig {
     @Value("${MYSQL_PASSWORD}")
     private String password;
 
-    @Bean ("fileResumeRoutePolicy")
-    public FileResumeRoutePolicy fileResumeRoutePolicy() {
-        return new FileResumeRoutePolicy();
-    }
-
     @Bean("cronScheduledRoutePolicy")
     public CronScheduledRoutePolicy cronScheduledRoutePolicy() {
         CronScheduledRoutePolicy cronScheduledRoutePolicy = new CronScheduledRoutePolicy();
         cronScheduledRoutePolicy.setRouteStartTime("1 * * * * ?");
         return cronScheduledRoutePolicy;
-    }
-
-    @Bean ("fileResumeUpdateRoutePolicy")
-    public FileResumeUpdateRoutePolicy fileResumeUpdateRoutePolicy() {
-        return new FileResumeUpdateRoutePolicy();
     }
 
     @Bean ("fileIdempotentRepository")
