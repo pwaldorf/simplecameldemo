@@ -17,12 +17,14 @@ public class MyTestRoutes extends RouteBuilder {
 
         templatedRoute("fileRouteTemplate")
             .routeId("largeFileRoute")
-            .parameter("filename", "test.txt");
+            .parameter("filename", "test.txt")
+            .parameter("directid", "splitmqsend");
 
         templatedRoute("splitmqsend")
             .routeId("splitmqsend")
             .parameter("mqcomponent", "gwhMqSender")
-            .parameter("mqcomponentmethod", "send");
+            .parameter("mqcomponentmethod", "send")
+            .parameter("directid", "splitmqsend");
 
     }    
     
