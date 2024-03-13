@@ -2,15 +2,10 @@ package com.pw.resumecameldemo.route;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GwhFileRouteTemplates extends RouteBuilder {
-
-
-    @Value("${gwh.group.count:50}")
-    private int groupCount;
 
     @Override
     public void configure() throws Exception {
@@ -18,17 +13,18 @@ public class GwhFileRouteTemplates extends RouteBuilder {
         routeTemplate("fileRouteTemplate")
             .templateParameter("filecomponent", "ftp")
             .templateParameter("directid", "splitmqsend")        
-            .templateParameter("user", "pwaldorf")
-            .templateParameter("server", "192.168.6.2:21")
+            .templateParameter("user")
+            .templateParameter("server")
             .templateParameter("port", "21")
-            .templateParameter("password", "XXXXXXXX")
-            .templateParameter("filename", "test.txt")
+            .templateParameter("password")
+            .templateParameter("filename")
             .templateParameter("delete", "true")
+            .templateParameter("groupcount", "500")
             .templateParameter("directid", "splitmqsend")  
             .templateParameter("splittoken", "\n")
-            .templateParameter("schedule", "0/20 * * * * ?")             
-            .templateParameter("routepolicy1", "cronScheduledRoutePolicy")
-            .templateParameter("routepolicy2", "fileResumeRoutePolicy")            
+            .templateParameter("schedule", "0/20 * * * * ?")            
+            .templateParameter("cronroutepolicy", "cronScheduledRoutePolicy")
+            .templateParameter("resumeroutepolicy", "fileResumeRoutePolicy")            
             .templateParameter("idempotentrepository", "fileIdempotentRepository")
             .from(new StringBuilder("{{filecomponent}}://")
                             .append("{{user}}@")
@@ -40,7 +36,7 @@ public class GwhFileRouteTemplates extends RouteBuilder {
                             .append("&scheduler=quartz")
                             .append("&scheduler.cron={{schedule}}")
                             .toString())                                          
-                    .routePolicyRef("{{routepolicy1}},{{routepolicy2}}").noAutoStartup()                    
+                    .routePolicyRef("{{cronroutepolicy}},{{resumeroutepolicy}}").noAutoStartup()                    
                     .idempotentConsumer(simple("${headers.CamelFileHost}-${headers.CamelFileName}-${headers.CamelFileLength}"))
                         .idempotentRepository("{{idempotentrepository}}")
                         .skipDuplicate(false)
@@ -49,7 +45,7 @@ public class GwhFileRouteTemplates extends RouteBuilder {
                         .log(LoggingLevel.INFO, "Skipping Duplicate File: ${headers.CamelFileHost}-${headers.CamelFileName}-${headers.CamelFileLength}")
                     .otherwise()
                         .convertBodyTo(String.class)
-                        .split().tokenize("{{splittoken}}", groupCount)
+                        .split().tokenize("{{splittoken}}", false, "{{groupcount}}" )
                             .streaming()
                             .stopOnException()
                         .to("direct:{{directid}}");                    

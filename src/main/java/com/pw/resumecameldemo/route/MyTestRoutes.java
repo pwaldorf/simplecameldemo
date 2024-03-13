@@ -1,6 +1,8 @@
 package com.pw.resumecameldemo.route;
 
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.spring.spi.TransactionErrorHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,14 +20,23 @@ public class MyTestRoutes extends RouteBuilder {
     @Value("${gwh.ftp.port}")
     private String port;
 
-    @Value("${gwh.ftp.password}")
+    @Value("${MYSQL_PASSWORD}")
     private String password;
 
     @Value("${gwh.ftp.filename}")
     private String filename;
 
+    @Value("${gwh.ftp.groupcount}")
+    private String groupcount;
+
     @Override
     public void configure() throws Exception {
+        
+        errorHandler(springTransactionErrorHandler()
+            .maximumRedeliveries(5)
+            .redeliveryDelay(5000)
+            .backOffMultiplier(10)            
+            .retryAttemptedLogLevel(LoggingLevel.WARN));
 
         onException(Exception.class)
                 .handled(true)
@@ -39,6 +50,7 @@ public class MyTestRoutes extends RouteBuilder {
             .parameter("port", port)
             .parameter("password", password)
             .parameter("filename", filename)
+            .parameter("groupcount", groupcount)            
             .parameter("directid", "splitmqsend");
 
         templatedRoute("splitmqsend")

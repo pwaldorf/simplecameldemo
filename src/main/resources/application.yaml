@@ -6,16 +6,17 @@ camel:
     tracing: false
     tracing-standby: false
 
-input:
-  dir: /tmp/camel
-  file: test.txt
-
 output:
   dir: /tmp/camel/out
 
 gwh:
-  group:
-    count: 3
+  ftp:    
+    server: 192.168.6.2
+    port: 21
+    user: pwaldorf    
+    directory: /tmp/camel
+    filename: test.txt
+    groupcount: 3
   core:
     db:
       datasource:

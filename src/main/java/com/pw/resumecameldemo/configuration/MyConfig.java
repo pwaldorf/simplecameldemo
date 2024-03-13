@@ -24,10 +24,10 @@ public class MyConfig {
     @Autowired
     GwhJpaCoreProperties gwhJpaCoreProperties;
 
-    @Value("${input.dir}")
+    @Value("${gwh.ftp.directory}")
     private String consumerDirectory;
 
-    @Value("${input.file}")
+    @Value("${gwh.ftp.filename}")
     private String consumerFile;
 
     @Value("${MYSQL_PASSWORD}")
@@ -51,14 +51,14 @@ public class MyConfig {
         return new CaffeineIdempotentRepository("recordRecords");
     }
 
-    @Bean
-    public JdbcTemplate resumeJdbcTemplate() throws PropertyVetoException {
-        return new JdbcTemplate(dataSource());            
-    }
-
     @Bean("resumeCache")
     public Cache<String, ResumeRecord> ResumeCache() {        
         return Caffeine.newBuilder().maximumSize(1).build(k -> ResumeRecord.get());
+    }
+
+    @Bean
+    public JdbcTemplate resumeJdbcTemplate() throws PropertyVetoException {
+        return new JdbcTemplate(dataSource());            
     }
 
     @Bean ("resumeDatasource")
