@@ -30,10 +30,9 @@ public class GwhSplitMQRouteTemplate extends RouteBuilder {
                         .stopOnException()
                     .idempotentConsumer(simple("${body}"))
                         .idempotentRepository("{{idempotentrepository}}")
-                        .skipDuplicate(false)                    
-                    .bean("{{resumeupdate}}", "{{resumeupdatemethod}}")                                                
+                        .skipDuplicate(false)
                     .to("bean:{{mqcomponent}}?method={{mqcomponentmethod}}");
-                    
+
     }
     
 }
