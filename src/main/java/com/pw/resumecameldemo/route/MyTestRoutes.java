@@ -1,11 +1,28 @@
 package com.pw.resumecameldemo.route;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 
 @Component
 public class MyTestRoutes extends RouteBuilder {
+
+ 
+    @Value("${gwh.ftp.user}")
+    private String user;
+
+    @Value("${gwh.ftp.server}")
+    private String server;
+
+    @Value("${gwh.ftp.port}")
+    private String port;
+
+    @Value("${gwh.ftp.password}")
+    private String password;
+
+    @Value("${gwh.ftp.filename}")
+    private String filename;
 
     @Override
     public void configure() throws Exception {
@@ -17,7 +34,11 @@ public class MyTestRoutes extends RouteBuilder {
 
         templatedRoute("fileRouteTemplate")
             .routeId("largeFileRoute")
-            .parameter("filename", "test.txt")
+            .parameter("user", user)
+            .parameter("server", server)
+            .parameter("port", port)
+            .parameter("password", password)
+            .parameter("filename", filename)
             .parameter("directid", "splitmqsend");
 
         templatedRoute("splitmqsend")
