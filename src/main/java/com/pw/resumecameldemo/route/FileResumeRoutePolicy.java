@@ -92,7 +92,7 @@ public class FileResumeRoutePolicy extends RoutePolicySupport {
         
         if (!exchange.isFailed()) {
             // reset offset and count for file back to zero            
-            String fileName = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
+            String fileName = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);            
             try {
 
                 writeLock.lock();
@@ -110,6 +110,8 @@ public class FileResumeRoutePolicy extends RoutePolicySupport {
         }
 
         this.stopRouteAsync(route);
+        
+        
     }
 
 

@@ -12,7 +12,7 @@ public class GwhFileRouteTemplates extends RouteBuilder {
 
         routeTemplate("fileRouteTemplate")
             .templateParameter("filecomponent", "ftp")
-            .templateParameter("directid", "splitmqsend")        
+            .templateParameter("directid", "splitmqsend")
             .templateParameter("user")
             .templateParameter("server")
             .templateParameter("port", "21")
@@ -22,7 +22,9 @@ public class GwhFileRouteTemplates extends RouteBuilder {
             .templateParameter("groupcount", "500")
             .templateParameter("directid", "splitmqsend")  
             .templateParameter("splittoken", "\n")
-            .templateParameter("schedule", "0/20 * * * * ?")            
+            .templateParameter("schedule", "0/20 * * * * ?")
+            .templateParameter("streamdownload", "true")
+            .templateParameter("stepwise", "false")
             .templateParameter("cronroutepolicy", "cronScheduledRoutePolicy")
             .templateParameter("resumeroutepolicy", "fileResumeRoutePolicy")            
             .templateParameter("idempotentrepository", "fileIdempotentRepository")
@@ -33,10 +35,13 @@ public class GwhFileRouteTemplates extends RouteBuilder {
                             .append("?password={{password}}")
                             .append("&fileName={{filename}}")
                             .append("&delete={{delete}}")
+                            .append("&streamDownload={{streamdownload}}")
+                            .append("&stepwise={{stepwise}}")
                             .append("&scheduler=quartz")
                             .append("&scheduler.cron={{schedule}}")
                             .toString())                                          
-                    .routePolicyRef("{{cronroutepolicy}},{{resumeroutepolicy}}").noAutoStartup()                    
+                    .routePolicyRef("{{cronroutepolicy}},{{resumeroutepolicy}}").noAutoStartup()
+                    .streamCaching()
                     .idempotentConsumer(simple("${headers.CamelFileHost}-${headers.CamelFileName}-${headers.CamelFileLength}"))
                         .idempotentRepository("{{idempotentrepository}}")
                         .skipDuplicate(false)
@@ -48,7 +53,7 @@ public class GwhFileRouteTemplates extends RouteBuilder {
                         .split().tokenize("{{splittoken}}", false, "{{groupcount}}" )
                             .streaming()
                             .stopOnException()
-                        .to("direct:{{directid}}");                    
+                        .to("direct:{{directid}}");
 
     }
     

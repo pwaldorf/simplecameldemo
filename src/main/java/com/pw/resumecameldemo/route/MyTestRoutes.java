@@ -1,5 +1,7 @@
 package com.pw.resumecameldemo.route;
 
+import jakarta.jms.JMSException;
+
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.spring.spi.TransactionErrorHandler;
@@ -37,6 +39,11 @@ public class MyTestRoutes extends RouteBuilder {
             .redeliveryDelay(5000)
             .backOffMultiplier(10)            
             .retryAttemptedLogLevel(LoggingLevel.WARN));
+
+        onException(JMSException.class)
+                .log("Exception: ${exception.message}");
+                //shutdown route
+                
 
         onException(Exception.class)
                 .handled(true)
