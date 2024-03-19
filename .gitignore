@@ -32,7 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 .gitignore
-.camel-jbang
+!.camel-jbang
 
 # Compiled class file
 *.class
