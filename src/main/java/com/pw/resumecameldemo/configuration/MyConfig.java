@@ -4,10 +4,14 @@ import java.beans.PropertyVetoException;
 
 import javax.sql.DataSource;
 
+import org.apache.camel.CamelContext;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.caffeine.processor.idempotent.CaffeineIdempotentRepository;
 import org.apache.camel.routepolicy.quartz.CronScheduledRoutePolicy;
+import org.apache.camel.spi.ExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties.Producer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,6 +19,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.pw.resumecameldemo.exception.GwhFileExceptionHandler;
 import com.pw.resumecameldemo.model.ResumeRecord;
 
 
@@ -24,6 +29,9 @@ public class MyConfig {
     @Autowired
     GwhJpaCoreProperties gwhJpaCoreProperties;
 
+    @Autowired
+    CamelContext camelContext;
+
     @Value("${gwh.ftp.directory}")
     private String consumerDirectory;
 
@@ -32,6 +40,12 @@ public class MyConfig {
 
     @Value("${MYSQL_PASSWORD}")
     private String password;
+
+
+    @Bean ("gwhFileExceptionHandler")
+    public GwhFileExceptionHandler gwhFileExceptionHandler() {        
+        return new GwhFileExceptionHandler(camelContext.createProducerTemplate());
+    }
 
     @Bean("cronScheduledRoutePolicy")
     public CronScheduledRoutePolicy cronScheduledRoutePolicy() {
@@ -77,4 +91,5 @@ public class MyConfig {
         dataSource.setAutoCommitOnClose(false);
         return dataSource;
     }
+
 }

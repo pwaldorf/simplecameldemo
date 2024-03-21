@@ -4,7 +4,6 @@ import jakarta.jms.JMSException;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.spring.spi.TransactionErrorHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -35,20 +34,34 @@ public class MyTestRoutes extends RouteBuilder {
     public void configure() throws Exception {
         
         errorHandler(springTransactionErrorHandler()
-            .maximumRedeliveries(5)
-            .redeliveryDelay(5000)
-            .backOffMultiplier(10)            
-            .retryAttemptedLogLevel(LoggingLevel.WARN));
+            .maximumRedeliveries(0));
 
+        //shutdown route from route policy
         onException(JMSException.class)
-                .log("Exception: ${exception.message}");
-                //shutdown route
-                
-
-        onException(Exception.class)
-                .handled(true)
                 .log("Exception: ${exception.message}")
-                .to("file:{{output.dir}}?fileName=summary2.txt&fileExist=Append&appendChars=\n");
+                .maximumRedeliveries(5)
+                .redeliveryDelay(1000)
+                .backOffMultiplier(10)
+                .retryAttemptedLogLevel(LoggingLevel.WARN)
+                .bean("beanLogErrorTable", "methodName")
+                .bean("beanFatalCXCode", "methodName")
+                .stop();
+
+        //shutdown route from route policy
+        //example of file exception no retry
+        onException(RuntimeException.class)
+                .log("Exception: ${exception.message}")
+                .maximumRedeliveries(0)
+                .bean("beanLogErrorTable", "methodName")
+                .bean("beanFatalCXCode", "methodName")
+                .stop();                
+        
+
+        from("direct:file-exception")
+            .throwException(new RuntimeException()); // <----- Make this a gateway exception to get caught by OnException Handler no retry
+
+        from("direct:file-retry")
+            .throwException(new RuntimeException()); // <----- Make this a gateway exception to get caught by OnException Handler for retry
 
         templatedRoute("fileRouteTemplate")
             .routeId("largeFileRoute")
