@@ -1,38 +1,55 @@
 package com.pw.resumecameldemo.route;
 
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.builder.EndpointConsumerBuilder;
+import org.apache.camel.builder.endpoint.EndpointRouteBuilder;
+import org.quartz.Scheduler;
+import org.quartz.core.QuartzScheduler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-
 @Component
-public class GwhFileRouteTemplates extends RouteBuilder {
+public class GwhFileRouteTemplate1 extends EndpointRouteBuilder {
+
 
     @Override
     public void configure() throws Exception {
 
-        routeTemplate("fileRouteTemplate")
+        routeTemplate("fileRouteTemplate1")
             .templateParameter("filecomponent", "ftp")
             .templateParameter("directid", "splitmqsend")
             .templateParameter("user")
             .templateParameter("server")
             .templateParameter("port", "21")
             .templateParameter("password")
-            .templateParameter("filename")            
+            .templateParameter("filename")
             .templateParameter("groupcount", "500")
-            .templateParameter("directid", "splitmqsend")  
+            .templateParameter("directid", "splitmqsend")
             .templateParameter("splittoken", "\n")
             .templateParameter("schedule", "0/20 * * * * ?")
             .templateParameter("exceptionhandler", "gwhFileExceptionHandler")
             .templateParameter("streamdownload", "true")
-            .templateParameter("stepwise", "false")                       
-            .templateParameter("idempotentrepository", "fileIdempotentRepository")            
+            .templateParameter("stepwise", "false")
+            .templateParameter("idempotentrepository", "fileIdempotentRepository")
+            //    .from(ftp("{{user}}@{{server}}:{{port}}/pub")
+            //         .account("{{user}}")
+            //         .password("{{password}}")
+
+            //         .fileName("{{filename}}")
+            //         .streamDownload("{{streamdownload}}")
+            //         .move("completed/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
+            //         .moveFailed("error/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
+            //         .scheduler("quartz")
+            //         .schedulerProperties("cron", "{{0/20 * * * * ?}}")
+            //         //.exceptionHandler("{{exceptionhandler}}")
+            //         .advanced()
+            //         .stepwise("{{stepwise}}"))
             .from(new StringBuilder("{{filecomponent}}://")
                             .append("{{user}}@")
                             .append("{{server}}:")
                             .append("{{port}}/pub")
                             .append("?password={{password}}")
-                            .append("&fileName={{filename}}")                            
+                            .append("&fileName={{filename}}")
                             .append("&streamDownload={{streamdownload}}")
                             .append("&stepwise={{stepwise}}")
                             .append("&scheduler=quartz")
@@ -40,9 +57,9 @@ public class GwhFileRouteTemplates extends RouteBuilder {
                             .append("&move=completed/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
                             .append("&moveFailed=error/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
                             //.append("&exceptionHandler={{exceptionhandler}}")
-                            .toString())                                          
-                    .routePolicyRef("fileResumeRoutePolicy,cronScheduledRoutePolicy").noAutoStartup()                    
-                    .streamCaching()                    
+                            .toString())
+                    .routePolicyRef("fileResumeRoutePolicy,cronScheduledRoutePolicy").noAutoStartup()
+                    .streamCaching()
                     .idempotentConsumer(simple("${headers.CamelFileHost}-${headers.CamelFileName}-${headers.CamelFileLength}"))
                         .idempotentRepository("{{idempotentrepository}}")
                         .skipDuplicate(false)
@@ -57,5 +74,7 @@ public class GwhFileRouteTemplates extends RouteBuilder {
                             .stopOnException()
                         .to("direct:{{directid}}");
 
-    }    
+
+    }
+
 }

@@ -107,12 +107,10 @@ public class FileResumeRoutePolicy extends RoutePolicySupport {
             } finally {
                 writeLock.unlock();
             }
+            this.stopRouteAsync(route);
         }
 
-        this.stopRouteAsync(route);
-        
-        
+        // this.stopRouteAsync(route);
+                
     }
-
-
 }

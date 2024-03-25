@@ -3,6 +3,8 @@ package com.pw.resumecameldemo.route;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
+import jakarta.jms.MessageFormatException;
+
 
 @Component
 public class GwhSplitMQRouteTemplate extends RouteBuilder {
@@ -23,14 +25,15 @@ public class GwhSplitMQRouteTemplate extends RouteBuilder {
             .templateParameter("resumeupdatemethod", "updateLineCount")
             .from("direct:{{directid}}")                    
                     .routePolicyRef("{{routepolicy}}")
-                    .routeConfigurationId("{{routeconfiguration}}")
+                    .routeConfigurationId("{{routeconfiguration}},jmsException")
                     .transacted("{{transactedref}}")                
                     .split().tokenize("{{splittoken}}")
                         .streaming()
                         .stopOnException()
                     .idempotentConsumer(simple("${body}"))
                         .idempotentRepository("{{idempotentrepository}}")
-                        .skipDuplicate(false)
+                        .skipDuplicate(false)                    
+                    .throwException(new MessageFormatException("Test1"))
                     .to("bean:{{mqcomponent}}?method={{mqcomponentmethod}}");
 
     }

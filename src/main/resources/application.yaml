@@ -1,10 +1,29 @@
 server:
     port: 8081
 
+management:
+  server:
+    port: 8085
+  endpoints:
+    web:
+      exposure:
+        include:
+          - info
+          - health
+          - camel      
+  endpoint:
+    info:
+      enabled: true
+    health:
+      enabled: true
+    camel:
+      enabled: true
+
 camel:
   springboot:
     tracing: false
-    tracing-standby: false
+    tracing-standby: false  
+    dev-console-enabled: true
 
 output:
   dir: /tmp/camel/out
@@ -57,7 +76,7 @@ logging:
     root: INFO
     org:
       apache:
-        camel: INFO
+        camel: DEBUG
           #component:
           #  ftp: TRACE      
         commons:

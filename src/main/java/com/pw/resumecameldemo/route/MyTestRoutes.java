@@ -1,17 +1,17 @@
 package com.pw.resumecameldemo.route;
 
-import jakarta.jms.JMSException;
-
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.pw.resumecameldemo.bean.MyException;
+
 
 @Component
 public class MyTestRoutes extends RouteBuilder {
 
- 
+
     @Value("${gwh.ftp.user}")
     private String user;
 
@@ -32,30 +32,15 @@ public class MyTestRoutes extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        
-        errorHandler(springTransactionErrorHandler()
-            .maximumRedeliveries(0));
 
-        //shutdown route from route policy
-        onException(JMSException.class)
-                .log("Exception: ${exception.message}")
-                .maximumRedeliveries(5)
-                .redeliveryDelay(1000)
-                .backOffMultiplier(10)
-                .retryAttemptedLogLevel(LoggingLevel.WARN)
-                .bean("beanLogErrorTable", "methodName")
-                .bean("beanFatalCXCode", "methodName")
-                .stop();
-
-        //shutdown route from route policy
-        //example of file exception no retry
-        onException(RuntimeException.class)
-                .log("Exception: ${exception.message}")
-                .maximumRedeliveries(0)
-                .bean("beanLogErrorTable", "methodName")
-                .bean("beanFatalCXCode", "methodName")
-                .stop();                
-        
+        onException(MyException.class)
+                    .log("MyException: ${exception.message}")
+                    .handled(true)
+                    .maximumRedeliveries(2)
+                    .redeliveryDelay(1000)
+                    .backOffMultiplier(10)
+                    .retryAttemptedLogLevel(LoggingLevel.INFO)
+                    .end();
 
         from("direct:file-exception")
             .throwException(new RuntimeException()); // <----- Make this a gateway exception to get caught by OnException Handler no retry
@@ -63,14 +48,14 @@ public class MyTestRoutes extends RouteBuilder {
         from("direct:file-retry")
             .throwException(new RuntimeException()); // <----- Make this a gateway exception to get caught by OnException Handler for retry
 
-        templatedRoute("fileRouteTemplate")
+        templatedRoute("fileRouteTemplate1")
             .routeId("largeFileRoute")
             .parameter("user", user)
             .parameter("server", server)
             .parameter("port", port)
             .parameter("password", password)
             .parameter("filename", filename)
-            .parameter("groupcount", groupcount)            
+            .parameter("groupcount", groupcount)
             .parameter("directid", "splitmqsend");
 
         templatedRoute("splitmqsend")
@@ -79,6 +64,6 @@ public class MyTestRoutes extends RouteBuilder {
             .parameter("mqcomponentmethod", "send")
             .parameter("directid", "splitmqsend");
 
-    }    
-    
+    }
+
 }

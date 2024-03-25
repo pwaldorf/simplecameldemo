@@ -1,14 +1,19 @@
 package com.pw.resumecameldemo.configuration;
 
 import java.beans.PropertyVetoException;
+import java.net.URI;
 
 import javax.sql.DataSource;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.Endpoint;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.builder.EndpointConsumerBuilder;
 import org.apache.camel.component.caffeine.processor.idempotent.CaffeineIdempotentRepository;
+import org.apache.camel.component.file.remote.FtpEndpoint;
 import org.apache.camel.routepolicy.quartz.CronScheduledRoutePolicy;
 import org.apache.camel.spi.ExceptionHandler;
+import org.apache.camel.spi.UriEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties.Producer;
@@ -19,6 +24,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.pw.resumecameldemo.bean.MyExceptionTester;
 import com.pw.resumecameldemo.exception.GwhFileExceptionHandler;
 import com.pw.resumecameldemo.model.ResumeRecord;
 
@@ -41,9 +47,13 @@ public class MyConfig {
     @Value("${MYSQL_PASSWORD}")
     private String password;
 
+    @Bean ("myExceptionTester")
+    public MyExceptionTester myExceptionTester() {
+        return new MyExceptionTester();
+    }
 
     @Bean ("gwhFileExceptionHandler")
-    public GwhFileExceptionHandler gwhFileExceptionHandler() {        
+    public GwhFileExceptionHandler gwhFileExceptionHandler() {
         return new GwhFileExceptionHandler(camelContext.createProducerTemplate());
     }
 
@@ -61,26 +71,26 @@ public class MyConfig {
 
     @Bean ("recordIdempotentRepository")
     public CaffeineIdempotentRepository recordIdempotentRepository() {
-        
+
         return new CaffeineIdempotentRepository("recordRecords");
     }
 
     @Bean("resumeCache")
-    public Cache<String, ResumeRecord> ResumeCache() {        
+    public Cache<String, ResumeRecord> ResumeCache() {
         return Caffeine.newBuilder().maximumSize(1).build(k -> ResumeRecord.get());
     }
 
     @Bean
     public JdbcTemplate resumeJdbcTemplate() throws PropertyVetoException {
-        return new JdbcTemplate(dataSource());            
+        return new JdbcTemplate(dataSource());
     }
 
     @Bean ("resumeDatasource")
     public DataSource dataSource() throws PropertyVetoException{
-        ComboPooledDataSource dataSource = new ComboPooledDataSource();        
-        dataSource.setDriverClass(gwhJpaCoreProperties.getClassName());        
+        ComboPooledDataSource dataSource = new ComboPooledDataSource();
+        dataSource.setDriverClass(gwhJpaCoreProperties.getClassName());
         dataSource.setJdbcUrl(gwhJpaCoreProperties.getUrl());
-        dataSource.setUser(gwhJpaCoreProperties.getUserName());        
+        dataSource.setUser(gwhJpaCoreProperties.getUserName());
         dataSource.setPassword(password);
         dataSource.setMinPoolSize(gwhJpaCoreProperties.getMinPoolSize());
         dataSource.setMaxPoolSize(gwhJpaCoreProperties.getMaxPoolSize());
