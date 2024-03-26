@@ -33,7 +33,7 @@ public class GwhSplitMQRouteTemplate extends RouteBuilder {
                     .idempotentConsumer(simple("${body}"))
                         .idempotentRepository("{{idempotentrepository}}")
                         .skipDuplicate(false)
-                    .throwException(new MessageFormatException("Test1"))
+                    //.throwException(new MessageFormatException("Test1"))
                     .to("bean:{{mqcomponent}}?method={{mqcomponentmethod}}");
 
     }

@@ -47,7 +47,8 @@ public class GwhFileExceptionConfiguration extends RouteConfigurationBuilder {
 
         routeConfiguration("jmsExceptionRetry")
                 .onException(JMSException.class)
-                    .onWhen(method("gwhExceptionClassification", "isRetryable")) // can add onWhen to call bean to determine if should do retry
+                    // can add onWhen to call bean to determine if should do retry based on returncode or other info
+                    .onWhen(method("gwhExceptionClassification", "isRetryable"))
                         .log("JMSException: ${exception.message}")
                         .handled(true)
                         .maximumRedeliveries(5)
@@ -58,6 +59,7 @@ public class GwhFileExceptionConfiguration extends RouteConfigurationBuilder {
                         .rollback("jms error");
 
         routeConfiguration("jmsExceptionNoRetry")
+                // setup for noretry for JMSException
                 .onException(JMSException.class)
                     .log("JMSException: ${exception.message}")
                     .handled(true)
