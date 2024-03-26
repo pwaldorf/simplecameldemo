@@ -5,7 +5,10 @@ import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.pw.resumecameldemo.bean.MyException;
+import com.pw.resumecameldemo.bean.GwhExceptionClassification;
+import com.pw.resumecameldemo.bean.MyCustomException;
+
+import jakarta.jms.JMSException;
 
 
 @Component
@@ -33,22 +36,16 @@ public class MyTestRoutes extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        onException(MyException.class)
-                    .log("MyException: ${exception.message}")
-                    .handled(true)
-                    .maximumRedeliveries(2)
-                    .redeliveryDelay(1000)
-                    .backOffMultiplier(10)
-                    .retryAttemptedLogLevel(LoggingLevel.INFO)
-                    .end();
-
         from("direct:file-exception")
             .throwException(new RuntimeException()); // <----- Make this a gateway exception to get caught by OnException Handler no retry
 
         from("direct:file-retry")
             .throwException(new RuntimeException()); // <----- Make this a gateway exception to get caught by OnException Handler for retry
 
-        templatedRoute("fileRouteTemplate1")
+        from("direct:file-delay")
+            .delay(20000);
+
+        templatedRoute("fileRouteTemplate")
             .routeId("largeFileRoute")
             .parameter("user", user)
             .parameter("server", server)

@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.camel.Exchange;
@@ -43,12 +44,12 @@ public class FileResumeRoutePolicy extends RoutePolicySupport {
     @Override
     public void onExchangeBegin(Route route, Exchange exchange) {
 
-        // Lookup offset and count for file and add to properties        
+        // Lookup offset and count for file and add to properties
         log.info("Beginning Route : {}", route.getId());
 
         // Lookup offset and count for file and add to properties
         String fileName = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
-        
+
         ResumeRecord resumeRecord = null;
 
         String sql = "SELECT last_record, last_offset, current_record FROM gwh.resume_strategy WHERE resume_key = ?" ;
@@ -61,49 +62,51 @@ public class FileResumeRoutePolicy extends RoutePolicySupport {
                 resumeRecord.setCurrentRecord(rs.getLong("current_record"));
                 return resumeRecord;
             }
-        };        
+        };
 
         try {
             resumeRecord = jdbcTemplate.queryForObject(sql, rowMapper, fileName);
 
         } catch (EmptyResultDataAccessException e) {
             log.info("No Resume Entry. Setting Offset to Zero");
-            log.info("Adding resume offset to table");            
+            log.info("Adding resume offset to table");
             resumeRecord = new ResumeRecord();
             resumeRecord.setLastRecord(0L);
             resumeRecord.setLastOffset(0L);
             resumeRecord.setCurrentRecord(0L);
-            jdbcTemplate.update("INSERT INTO gwh.resume_strategy (resume_key, last_record, last_offset, current_record) VALUES (?, ?, ?, ?)", 
-                                    fileName, resumeRecord.getLastRecord(), resumeRecord.getLastOffset(), resumeRecord.getCurrentRecord());            
-            
-        }         
+            jdbcTemplate.update("INSERT INTO gwh.resume_strategy (resume_key, last_record, last_offset, current_record) VALUES (?, ?, ?, ?)",
+                                    fileName, resumeRecord.getLastRecord(), resumeRecord.getLastOffset(), resumeRecord.getCurrentRecord());
+
+        }
 
         if (resumeRecord != null) {
             resumeRecord.setCurrentRecord(0L);
-            log.info("Setting Route Last Record: {} and Last Offset: {} and Current Record: {}", 
+            log.info("Setting Route Last Record: {} and Last Offset: {} and Current Record: {}",
                         resumeRecord.getLastRecord(), resumeRecord.getLastOffset(), resumeRecord.getCurrentRecord());
             resumeCache.put(fileName, resumeRecord);
-        }        
+        }
 
     }
 
-    @Override
+    // @Override
     public void onExchangeDone(Route route, Exchange exchange) {
-        
+
+        log.info("Process File Exchange Done");
+
         if (!exchange.isFailed()) {
-            // reset offset and count for file back to zero            
-            String fileName = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);            
+            // reset offset and count for file back to zero
+            String fileName = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
             try {
 
                 writeLock.lock();
-                            
+
                 log.info("Reset resume offset to table and cache");
-                jdbcTemplate.update("UPDATE gwh.resume_strategy SET last_record = ?, last_offset= ?, current_record = ? WHERE resume_key = ?", 
+                jdbcTemplate.update("UPDATE gwh.resume_strategy SET last_record = ?, last_offset= ?, current_record = ? WHERE resume_key = ?",
                                                  0L, 0L, 0L, fileName);
 
                 resumeCache.invalidateAll();
                 //recordIdempotentRepository.clear();
-                
+
             } finally {
                 writeLock.unlock();
             }
@@ -111,6 +114,7 @@ public class FileResumeRoutePolicy extends RoutePolicySupport {
         }
 
         // this.stopRouteAsync(route);
-                
+
     }
+
 }

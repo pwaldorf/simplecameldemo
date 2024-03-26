@@ -8,8 +8,11 @@ import org.quartz.core.QuartzScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class GwhFileRouteTemplate1 extends EndpointRouteBuilder {
+
+    @Autowired
+    EndpointConsumerBuilder ftpEndpointConsumerBuilder;
 
 
     @Override
@@ -31,6 +34,7 @@ public class GwhFileRouteTemplate1 extends EndpointRouteBuilder {
             .templateParameter("streamdownload", "true")
             .templateParameter("stepwise", "false")
             .templateParameter("idempotentrepository", "fileIdempotentRepository")
+                .from(ftpEndpointConsumerBuilder)
             //    .from(ftp("{{user}}@{{server}}:{{port}}/pub")
             //         .account("{{user}}")
             //         .password("{{password}}")
@@ -39,25 +43,26 @@ public class GwhFileRouteTemplate1 extends EndpointRouteBuilder {
             //         .streamDownload("{{streamdownload}}")
             //         .move("completed/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
             //         .moveFailed("error/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
+
             //         .scheduler("quartz")
             //         .schedulerProperties("cron", "{{0/20 * * * * ?}}")
             //         //.exceptionHandler("{{exceptionhandler}}")
             //         .advanced()
             //         .stepwise("{{stepwise}}"))
-            .from(new StringBuilder("{{filecomponent}}://")
-                            .append("{{user}}@")
-                            .append("{{server}}:")
-                            .append("{{port}}/pub")
-                            .append("?password={{password}}")
-                            .append("&fileName={{filename}}")
-                            .append("&streamDownload={{streamdownload}}")
-                            .append("&stepwise={{stepwise}}")
-                            .append("&scheduler=quartz")
-                            .append("&scheduler.cron={{schedule}}")
-                            .append("&move=completed/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
-                            .append("&moveFailed=error/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
-                            //.append("&exceptionHandler={{exceptionhandler}}")
-                            .toString())
+            // .from(new StringBuilder("{{filecomponent}}://")
+            //                 .append("{{user}}@")
+            //                 .append("{{server}}:")
+            //                 .append("{{port}}/pub")
+            //                 .append("?password={{password}}")
+            //                 .append("&fileName={{filename}}")
+            //                 .append("&streamDownload={{streamdownload}}")
+            //                 .append("&stepwise={{stepwise}}")
+            //                 .append("&scheduler=quartz")
+            //                 .append("&scheduler.cron={{schedule}}")
+            //                 .append("&move=completed/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
+            //                 .append("&moveFailed=error/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
+            //                 //.append("&exceptionHandler={{exceptionhandler}}")
+            //                 .toString())
                     .routePolicyRef("fileResumeRoutePolicy,cronScheduledRoutePolicy").noAutoStartup()
                     .streamCaching()
                     .idempotentConsumer(simple("${headers.CamelFileHost}-${headers.CamelFileName}-${headers.CamelFileLength}"))

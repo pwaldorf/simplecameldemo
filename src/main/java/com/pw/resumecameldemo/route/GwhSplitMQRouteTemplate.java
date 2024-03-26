@@ -12,7 +12,7 @@ public class GwhSplitMQRouteTemplate extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        routeTemplate("splitmqsend")            
+        routeTemplate("splitmqsend")
             .templateParameter("directid", "splitmqsend")
             .templateParameter("mqcomponent", "gwhMqSender")
             .templateParameter("mqcomponentmethod", "send")
@@ -23,19 +23,19 @@ public class GwhSplitMQRouteTemplate extends RouteBuilder {
             .templateParameter("idempotentrepository", "recordIdempotentRepository")
             .templateParameter("resumeupdate", "fileResumeUpdateRoutePolicy")
             .templateParameter("resumeupdatemethod", "updateLineCount")
-            .from("direct:{{directid}}")                    
+            .from("direct:{{directid}}")
                     .routePolicyRef("{{routepolicy}}")
-                    .routeConfigurationId("{{routeconfiguration}},jmsException")
-                    .transacted("{{transactedref}}")                
+                    .routeConfigurationId("{{routeconfiguration}},jmsExceptionRetry,jmsExceptionNoRetry")
+                    .transacted("{{transactedref}}")
                     .split().tokenize("{{splittoken}}")
                         .streaming()
                         .stopOnException()
                     .idempotentConsumer(simple("${body}"))
                         .idempotentRepository("{{idempotentrepository}}")
-                        .skipDuplicate(false)                    
+                        .skipDuplicate(false)
                     .throwException(new MessageFormatException("Test1"))
                     .to("bean:{{mqcomponent}}?method={{mqcomponentmethod}}");
 
     }
-    
+
 }

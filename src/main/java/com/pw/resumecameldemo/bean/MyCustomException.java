@@ -1,11 +1,11 @@
 package com.pw.resumecameldemo.bean;
 
-public class MyException extends RuntimeException {
+public class MyCustomException extends RuntimeException {
 
-	public MyException(String message) {
+	public MyCustomException(String message) {
 		super(message);
 	}
 
 	private static final long serialVersionUID = 1L;
 
-} 
+}

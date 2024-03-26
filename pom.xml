@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<groupId>com.pw</groupId>
 	<artifactId>simplecameldemo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.5</version>		
+		<version>3.1.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -21,7 +21,7 @@
 		  <dependency>
 			  <groupId>org.springframework.boot</groupId>
 			  <artifactId>spring-boot-dependencies</artifactId>
-			  <version>3.1.5</version>				
+			  <version>3.1.5</version>
 			  <type>pom</type>
 			  <scope>import</scope>
 		  </dependency>
@@ -47,7 +47,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>		
+		</dependency>
 		<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
@@ -56,7 +56,7 @@
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jdbc</artifactId>
         </dependency>
-		
+
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
@@ -67,48 +67,52 @@
 			<artifactId>spring-boot-starter-artemis</artifactId>
 		</dependency>
 
-		
+
 
 		<!-- camel dependencies -->
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-spring-boot-starter</artifactId>			
+			<artifactId>camel-spring-boot-starter</artifactId>
 	  	</dependency>
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-kafka-starter</artifactId>			
+			<artifactId>camel-kafka-starter</artifactId>
 	  	</dependency>
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-file-starter</artifactId>			
-	  	</dependency>		  
-		<dependency>
-			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-caffeine-starter</artifactId>			
+			<artifactId>camel-file-starter</artifactId>
 	  	</dependency>
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-ftp-starter</artifactId>			
-	  	</dependency>		  
+			<artifactId>camel-bean-starter</artifactId>
+	  	</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-caffeine-starter</artifactId>
+	  	</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-ftp-starter</artifactId>
+	  	</dependency>
 		  <dependency>
 			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-jms-starter</artifactId>			
-	  	</dependency>		
+			<artifactId>camel-jms-starter</artifactId>
+	  	</dependency>
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-log-starter</artifactId>			
+			<artifactId>camel-log-starter</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-quartz-starter</artifactId>			
+			<artifactId>camel-quartz-starter</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-cron-starter</artifactId>			
+			<artifactId>camel-cron-starter</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-endpointdsl-starter</artifactId>			
+			<artifactId>camel-endpointdsl-starter</artifactId>
 		</dependency>
 
 		<dependency>
@@ -120,7 +124,7 @@
 			<artifactId>camel-management-starter</artifactId>
 		</dependency>
 
-		<!-- activemq dependencies-->		
+		<!-- activemq dependencies-->
 		<dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-jms-client</artifactId>
@@ -134,7 +138,7 @@
         </dependency>
 
 
-		<!-- mysql dependencies-->		
+		<!-- mysql dependencies-->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
@@ -145,12 +149,12 @@
 			<artifactId>c3p0</artifactId>
 			<version>0.9.5.5</version>
 		</dependency>
-		
+
 
 		<!-- utility dependencies-->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>			
+			<artifactId>lombok</artifactId>
 		</dependency>
 
 		<dependency>

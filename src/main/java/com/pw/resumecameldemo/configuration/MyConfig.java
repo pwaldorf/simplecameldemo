@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
+import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.EndpointConsumerBuilder;
 import org.apache.camel.component.caffeine.processor.idempotent.CaffeineIdempotentRepository;
@@ -28,7 +29,10 @@ import com.pw.resumecameldemo.bean.MyExceptionTester;
 import com.pw.resumecameldemo.exception.GwhFileExceptionHandler;
 import com.pw.resumecameldemo.model.ResumeRecord;
 
+import jakarta.jms.MessageFormatException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Configuration
 public class MyConfig {
 
@@ -46,6 +50,13 @@ public class MyConfig {
 
     @Value("${MYSQL_PASSWORD}")
     private String password;
+
+
+    @Bean ("gwhExceptionType")
+    public Class<? extends Throwable> gwhExceptionType() {
+        return MessageFormatException.class;
+    }
+
 
     @Bean ("myExceptionTester")
     public MyExceptionTester myExceptionTester() {
