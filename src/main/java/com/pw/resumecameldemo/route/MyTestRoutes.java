@@ -27,14 +27,25 @@ public class MyTestRoutes extends RouteBuilder {
     @Value("${MYSQL_PASSWORD}")
     private String password;
 
+    @Value("${gwh.ftp.location}")
+    private String location;
+
     @Value("${gwh.ftp.filename}")
     private String filename;
 
     @Value("${gwh.ftp.groupcount}")
     private String groupcount;
 
+    @Value("${gwh.ftp.delimiter}")
+    private String delimiter;
+
+
+    @Value("${gwh.ftp.sshkeyfile}")
+    private String sshKeyFile;
+
     @Override
     public void configure() throws Exception {
+
 
         from("direct:file-exception")
             .throwException(new RuntimeException()); // <----- Make this a gateway exception to get caught by OnException Handler no retry
@@ -62,5 +73,4 @@ public class MyTestRoutes extends RouteBuilder {
             .parameter("directid", "splitmqsend");
 
     }
-
 }

@@ -19,7 +19,7 @@ public class GwhFileRouteTemplates extends RouteBuilder {
             .templateParameter("port", "21")
             .templateParameter("password")
             .templateParameter("filename")
-            .templateParameter("groupcount", "500")
+            .templateParameter("groupcount", "50")
             .templateParameter("directid", "splitmqsend")
             .templateParameter("splittoken", "\n")
             .templateParameter("schedule", "0/20 * * * * ?")
@@ -27,6 +27,7 @@ public class GwhFileRouteTemplates extends RouteBuilder {
             .templateParameter("streamdownload", "true")
             .templateParameter("stepwise", "false")
             .templateParameter("idempotentrepository", "fileIdempotentRepository")
+            .templateParameter("lastRecord", "0")
             .from(new StringBuilder("{{filecomponent}}://")
                             .append("{{user}}@")
                             .append("{{server}}:")
@@ -56,8 +57,10 @@ public class GwhFileRouteTemplates extends RouteBuilder {
                     .otherwise()
                         .convertBodyTo(String.class)
                         .split().tokenize("{{splittoken}}", false, "{{groupcount}}" )
-                            .streaming()
-                            .stopOnException()
+                                .streaming()
+                                .stopOnException()
+                        .log("Split Index: ${exchangeProperty.CamelSplitIndex}")
+                        .filter(simple("${exchangeProperty.CamelSplitIndex} >= {{lastRecord}}"))
                         .to("direct:{{directid}}");
 
     }

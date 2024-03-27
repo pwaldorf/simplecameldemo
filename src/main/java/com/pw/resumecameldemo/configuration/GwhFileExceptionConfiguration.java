@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 import com.pw.resumecameldemo.bean.MyCustomException;
 
 import jakarta.jms.JMSException;
-import java.util.ArrayList;
-import java.util.List;
+
 
 @Component
 public class GwhFileExceptionConfiguration extends RouteConfigurationBuilder {
@@ -22,6 +21,7 @@ public class GwhFileExceptionConfiguration extends RouteConfigurationBuilder {
         routeConfiguration()
             .errorHandler(springTransactionErrorHandler().maximumRedeliveries(0));
 
+        // One and Only Global Exception Handler
         routeConfiguration()
             .onException(MyCustomException.class)
                     .log("MyException: ${exception.message}")
@@ -67,8 +67,5 @@ public class GwhFileExceptionConfiguration extends RouteConfigurationBuilder {
                     //.bean("gwhExceptionHandler", "handleException") // Create bean to integrate with GW exception handling
                     .rollback("jms error");
 
-
-
     }
-
 }
