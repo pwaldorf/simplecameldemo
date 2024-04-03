@@ -15,6 +15,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.DeliveryMode;
+import jakarta.jms.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.core.JmsTemplate;
 
@@ -31,6 +32,8 @@ public class GwhActiveMqConfigurations {
         JmsTemplate jmsTemplate = new JmsTemplate(activeMqTestConnectionFactory());
         //jmsTemplate.setSessionTransacted(true);
         //jmsTemplate.setDeliveryPersistent(false);
+        jmsTemplate.setSessionTransacted(true);
+        jmsTemplate.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
         jmsTemplate.setDeliveryMode(DeliveryMode.PERSISTENT);
         return jmsTemplate;
     }
@@ -90,17 +93,17 @@ public class GwhActiveMqConfigurations {
         return new ChainedTransactionManager(activeMqTestTransactionManager());
     }
 
-    @Bean("txRequiredActiveMqTest")
-    public SpringTransactionPolicy txRequiredActiveMqTest() {
-        SpringTransactionPolicy required = new SpringTransactionPolicy();
-        required.setTransactionManager(routeChainedTransactionManager());
-        required.setPropagationBehaviorName("PROPAGATION_REQUIRED");
-        return required;
-    }
+    // @Bean("txRequiredActiveMqTest")
+    // public SpringTransactionPolicy txRequiredActiveMqTest() {
+    //     SpringTransactionPolicy required = new SpringTransactionPolicy();
+    //     required.setTransactionManager(routeChainedTransactionManager());
+    //     required.setPropagationBehaviorName("PROPAGATION_REQUIRED");
+    //     return required;
+    // }
 
-    @Bean
-    public TransactionTemplate transactionTemplate (ChainedTransactionManager transactionManager) {
-        return new TransactionTemplate(transactionManager);
-    }
+    // @Bean
+    // public TransactionTemplate transactionTemplate () {
+    //     return new TransactionTemplate(routeChainedTransactionManager());
+    // }
 
 }

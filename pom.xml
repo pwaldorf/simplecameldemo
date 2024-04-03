@@ -94,9 +94,26 @@
 			<groupId>org.apache.camel.springboot</groupId>
 			<artifactId>camel-ftp-starter</artifactId>
 	  	</dependency>
-		  <dependency>
+		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
 			<artifactId>camel-jms-starter</artifactId>
+	  	</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-jackson-starter</artifactId>
+	  	</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-csv-starter</artifactId>
+	  	</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-flatpack-starter</artifactId>
+	  	</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-beanio-starter</artifactId>
+			<version>4.4.0</version>
 	  	</dependency>
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>

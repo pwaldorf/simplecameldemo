@@ -1,15 +1,45 @@
 package com.pw.resumecameldemo.route;
 
-import org.apache.camel.LoggingLevel;
-import org.apache.camel.builder.RouteBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.camel.builder.EndpointConsumerBuilder;
+import org.apache.camel.builder.endpoint.EndpointRouteBuilder;
+import org.apache.camel.processor.aggregate.GroupedBodyAggregationStrategy;
+import org.apache.camel.routepolicy.quartz.CronScheduledRoutePolicy;
+import org.apache.camel.spi.RoutePolicy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import com.pw.resumecameldemo.bean.GwhDataFormat;
 
 
 @Component
-public class GwhFileRouteTemplates extends RouteBuilder {
+public class GwhFileRouteTemplates extends EndpointRouteBuilder {
+
+    @Autowired
+    CronScheduledRoutePolicy cronScheduledRoutePolicy;
+
+    @Autowired
+    FileResumeRoutePolicy fileResumeRoutePolicy;
+
+    @Autowired
+    GwhDataFormat gwhDataFormat;
+
+    @Autowired
+    @Qualifier("ftpEndpointConsumerBuilder")
+    EndpointConsumerBuilder endpointConsumerBuilder;
+
 
     @Override
     public void configure() throws Exception {
+
+        List<RoutePolicy> routePolicies = new ArrayList<>();
+        routePolicies.add(cronScheduledRoutePolicy);
+        routePolicies.add(fileResumeRoutePolicy);
+
 
         routeTemplate("fileRouteTemplate")
             .templateParameter("filecomponent", "ftp")
@@ -19,49 +49,41 @@ public class GwhFileRouteTemplates extends RouteBuilder {
             .templateParameter("port", "21")
             .templateParameter("password")
             .templateParameter("filename")
-            .templateParameter("groupcount", "50")
-            .templateParameter("directid", "splitmqsend")
-            .templateParameter("splittoken", "\n")
-            .templateParameter("schedule", "0/20 * * * * ?")
-            .templateParameter("exceptionhandler", "gwhFileExceptionHandler")
             .templateParameter("streamdownload", "true")
             .templateParameter("stepwise", "false")
-            .templateParameter("idempotentrepository", "fileIdempotentRepository")
-            .templateParameter("lastRecord", "0")
-            .from(new StringBuilder("{{filecomponent}}://")
-                            .append("{{user}}@")
-                            .append("{{server}}:")
-                            .append("{{port}}/pub")
-                            .append("?password={{password}}")
-                            .append("&fileName={{filename}}")
-                            .append("&streamDownload={{streamdownload}}")
-                            .append("&stepwise={{stepwise}}")
-                            .append("&backoffErrorThreshold=1")
-                            .append("&backoffMultiplier=10")
-                            .append("&delay=10000")
-                            //.append("&scheduler=quartz")
-                            //.append("&scheduler.cron={{schedule}}")
-                            .append("&move=completed/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
-                            .append("&moveFailed=error/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
-                            //.append("&exceptionHandler={{exceptionhandler}}")
-                            .toString())
-                    .routePolicyRef("fileResumeRoutePolicy,cronScheduledRoutePolicy").noAutoStartup()
-                    .streamCaching()
-                    .idempotentConsumer(simple("${headers.CamelFileHost}-${headers.CamelFileName}-${headers.CamelFileLength}"))
-                        .idempotentRepository("{{idempotentrepository}}")
-                        .skipDuplicate(false)
-                    //.bean("myExceptionTester", "process")
-                    .choice()
-                    .when(simple("${exchangeProperty.CamelDuplicateMessage} == 'true'"))
-                        .log(LoggingLevel.INFO, "Skipping Duplicate File: ${headers.CamelFileHost}-${headers.CamelFileName}-${headers.CamelFileLength}")
-                    .otherwise()
-                        .convertBodyTo(String.class)
-                        .split().tokenize("{{splittoken}}", false, "{{groupcount}}" )
-                                .streaming()
-                                .stopOnException()
-                        .log("Split Index: ${exchangeProperty.CamelSplitIndex}")
-                        .filter(simple("${exchangeProperty.CamelSplitIndex} >= {{lastRecord}}"))
-                        .to("direct:{{directid}}");
+            // .from(new StringBuilder("{{filecomponent}}://")
+            //                 .append("{{user}}@")
+            //                 .append("{{server}}:")
+            //                 .append("{{port}}/pub")
+            //                 .append("?password={{password}}")
+            //                 .append("&fileName={{filename}}")
+            //                 .append("&streamDownload={{streamdownload}}")
+            //                 .append("&stepwise={{stepwise}}")
+            //                 .append("&bridgeErrorHandler=true")
+            //                 .append("&backoffErrorThreshold=1")
+            //                 .append("&backoffMultiplier=10")
+            //                 .append("&delay=10000")
+            //                 .append("&move=completed/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
+            //                 .append("&moveFailed=error/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}")
+            //                 .toString())
+            .from(endpointConsumerBuilder)
+                .routePolicy(routePolicies.toArray(RoutePolicy[]::new)).noAutoStartup()
+                .convertBodyTo(String.class)
+                .unmarshal(gwhDataFormat.geDataFormat("${file:onlyname}"))
+                .choice()
+                .when(simple("${body.getErrorCount} > 0"))
+                    .log("Parsing error occured: simple(${body.getErrors})")
+                    .throwException(new RuntimeException("simple(${body.getErrors})"))
+                .end()
+                .split().body()
+                .aggregate(new GroupedBodyAggregationStrategy()).constant(true).eagerCheckCompletion()
+                    .completionSize(4)
+                    .completionTimeout(5000)
+                    .completionPredicate(exchangeProperty("CamelSplitComplete").isEqualTo(true))
+                    .marshal().json()
+                    .log("MQ Body Final: ${body}")
+                    //.to("direct:{{directid}}");
+                .end();
 
     }
 }

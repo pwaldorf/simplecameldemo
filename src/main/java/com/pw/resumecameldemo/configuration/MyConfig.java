@@ -12,6 +12,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.EndpointConsumerBuilder;
 import org.apache.camel.component.caffeine.processor.idempotent.CaffeineIdempotentRepository;
 import org.apache.camel.component.file.remote.FtpEndpoint;
+import org.apache.camel.dataformat.flatpack.FlatpackDataFormat;
 import org.apache.camel.routepolicy.quartz.CronScheduledRoutePolicy;
 import org.apache.camel.spi.ExceptionHandler;
 import org.apache.camel.spi.UriEndpoint;
@@ -27,6 +28,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.pw.resumecameldemo.bean.MyExceptionTester;
 import com.pw.resumecameldemo.exception.GwhFileExceptionHandler;
+import com.pw.resumecameldemo.loaders.GwhJpaDataFileDataLoader;
 import com.pw.resumecameldemo.model.ResumeRecord;
 
 import jakarta.jms.MessageFormatException;
@@ -42,6 +44,9 @@ public class MyConfig {
     @Autowired
     CamelContext camelContext;
 
+    @Value("${gwh.framework.component.ftp.route.start.time:1 * * * * ?}")
+    String routeStartTime;
+
     @Value("${gwh.ftp.directory}")
     private String consumerDirectory;
 
@@ -51,12 +56,15 @@ public class MyConfig {
     @Value("${MYSQL_PASSWORD}")
     private String password;
 
+    @Bean ("gwhDataFileConfigLoader")
+    public GwhJpaDataFileDataLoader gwhJpaDataFileDataLoader() {
+        return new GwhJpaDataFileDataLoader();
+    }
 
     @Bean ("gwhExceptionType")
     public Class<? extends Throwable> gwhExceptionType() {
         return MessageFormatException.class;
     }
-
 
     @Bean ("myExceptionTester")
     public MyExceptionTester myExceptionTester() {
@@ -71,7 +79,7 @@ public class MyConfig {
     @Bean("cronScheduledRoutePolicy")
     public CronScheduledRoutePolicy cronScheduledRoutePolicy() {
         CronScheduledRoutePolicy cronScheduledRoutePolicy = new CronScheduledRoutePolicy();
-        cronScheduledRoutePolicy.setRouteStartTime("1 * * * * ?");
+        cronScheduledRoutePolicy.setRouteStartTime(routeStartTime);
         return cronScheduledRoutePolicy;
     }
 
@@ -113,4 +121,20 @@ public class MyConfig {
         return dataSource;
     }
 
+
+    // @Bean("dataDefinition")
+    // public String getDefinition() {
+    //     return new StringBuilder("<?xml version='1.0'?>")
+    //         .append("<!DOCTYPE PZMAP SYSTEM")
+    //         .append("\"flatpack.dtd\" >")
+    //         .append("<PZMAP>")
+    //         .append("<COLUMN name=\"FIRSTNAME\" length=\"35\" />")
+    //         .append("<COLUMN name=\"LASTNAME\" length=\"35\" />")
+    //         .append("<COLUMN name=\"ADDRESS\" length=\"100\" />")
+    //         .append("<COLUMN name=\"CITY\" length=\"100\" />")
+    //         .append("<COLUMN name=\"STATE\" length=\"2\" />")
+    //         .append("<COLUMN name=\"ZIP\" length=\"5\" />")
+    //         .append("</PZMAP>")
+    //         .toString();
+    // }
 }

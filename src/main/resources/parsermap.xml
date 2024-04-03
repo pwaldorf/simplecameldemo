@@ -1,0 +1,13 @@
+<?xml version='1.0'?>
+<!DOCTYPE PZMAP SYSTEM "http://flatpack.sourceforge.net/flatpack.dtd" >
+<PZMAP>
+	<RECORD id="header" indicator="FIRSTNAME" elementNumber="1">
+        <COLUMN name="HEADERDATA" />
+    </RECORD>
+	<COLUMN name="FIRSTNAME" />
+	<COLUMN name="LASTNAME" />
+	<COLUMN name="ADDRESS" />
+	<COLUMN name="CITY" />
+	<COLUMN name="STATE" />
+	<COLUMN name="ZIP" />
+</PZMAP>

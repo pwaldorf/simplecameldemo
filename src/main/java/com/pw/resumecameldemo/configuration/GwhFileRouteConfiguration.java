@@ -15,7 +15,7 @@ public class GwhFileRouteConfiguration extends RouteConfigurationBuilder {
     @Autowired
     FileResumeUpdateRoutePolicy fileResumeUpdateRoutePolicy;
 
-    @Value("${gwh.route.resumeprocess.enabled:true}")
+    @Value("${gwh.route.resumeprocess.enabled:false}")
     private String enabled;
 
     @Override
@@ -25,8 +25,7 @@ public class GwhFileRouteConfiguration extends RouteConfigurationBuilder {
             .precondition(enabled)
             .id("resumeProcess")
             .interceptSendToEndpoint("^(bean:gwhMqSender).*")
-                .bean("fileResumeUpdateRoutePolicy", "updateLineCount")
-                .skipSendToOriginalEndpoint()
+                .bean("fileResumeUpdateRoutePolicy", "updateLineCount").end()
             .choice()
                 .when(method(fileResumeUpdateRoutePolicy, "skipRecord"))
                     .log(LoggingLevel.INFO, "Skipping Resume Record: ${body}")
@@ -36,5 +35,5 @@ public class GwhFileRouteConfiguration extends RouteConfigurationBuilder {
                     .log(LoggingLevel.INFO,"Processing Record: ${body}");
 
     }
-    
+
 }
